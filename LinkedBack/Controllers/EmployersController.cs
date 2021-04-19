@@ -1,0 +1,161 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using DTO;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Models;
+using LinkedBack.Data;
+using LinkedBack.DTO;
+
+namespace backend_database_HTTP_Requests.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class EmployersController : ControllerBase
+    {
+        private readonly Context _context;
+        public EmployersController(Context context)
+        {
+            _context = context;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<EmployersDTO>>> GetEmployers()
+        {
+            var employer = from employers in _context.Employers join Employers_description in _context.Employers_Description on Employers.id equals Employers_description.employers_id
+            select new EmployersDTO {
+                Employers_id = employers.id,
+                Age = Employers_description.Age,
+                Name = employers.Name,
+                Job = Employers_description.Job,
+                Country = Employers_description.Country,
+                Entreprise = employers.Entreprise
+            };
+
+            return await employer.ToListAsync();
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<EmployersDTO> GetEmployer_byId(int id)
+        {
+            var job = from jobs in _context.Jobs
+            join job_descriptions in _context.Jobs_Description on jobs.id equals job_descriptions.Jobs_id
+            join jobs_list in _context.Jobs_list on jobs.id equals jobs_list.Jobs_id
+            select new JobsDTO
+            {
+
+                Jobs_id = jobs.id,
+                Name = jobs.Name,
+                Jobs_id_id = job_descriptions.Jobs_id,
+                Salary = job_descriptions.Salary,
+                Skills_required = job_descriptions.Skills_required,
+                Allocation_date = jobs_list.Allocation_date,
+                Return_date = jobs_list.Return_date,
+                Employers_id = jobs_list.Employers_id,
+                id = jobs_list.id,
+                Renewed = jobs_list.Renewed
+            };
+
+            var employer = from employers in _context.Employers 
+            join Employers_description in _context.Employers_Description on Employers.id equals Employers_description.employers_id
+            join jobs_list in _context.Jobs_list on employers.id equals jobs_list.Jobs_id
+            select new EmployersProfileDTO
+            {
+                Employers_id = employers.id,
+                Age = Employers_description.Age,
+                Name = employers.Name,
+                Job = Employers_description.Job,
+                Country = Employers_description.Country,
+                Entreprise = employers.Entreprise,
+                Jobs = job.Where(x => x.Jobs_id== jobs_list.Jobs_id).ToList()
+            };
+
+            var employer_by_id = employer.ToList().Find(x => x.employers_id == id);
+
+            if (employer_by_id == null)
+            {
+                return NotFound();
+            }
+            return employer_by_id;
+        }
+
+
+             [HttpPost]
+         public async Task<ActionResult> Add_Employers(AddEmployers employerDTO)
+         {
+             if (!ModelState.IsValid)
+         {
+                 return BadRequest(ModelState);
+             }
+
+             var employer = new Employers()
+             {
+                 Name = employerDTO.Name,
+                 Entreprise = employerDTO.Entreprise
+             };
+             await _context.Employers.AddAsync(employer);
+             await _context.SaveChangesAsync();
+
+             var employer_profile = new Employers_Description()
+             {
+                 employerId = employer.id,
+                 Job = employerDTO.Job,
+                 Age = employerDTO.Age,
+                 Country = employerDTO.Country
+             };
+             await _context.AddAsync(employer_profile);
+
+             await _context.SaveChangesAsync();
+
+             return CreatedAtAction("GetEmployers", new { id = employer.id }, employerDTO);
+         }
+
+
+         [HttpDelete("{id}")]
+         public async Task<ActionResult<Employers>> Delete_Employer(int id)
+         {
+             var employer = _context.Employers.Find(id);
+             var employer_profile = _context.Employers_Description.SingleOrDefault(x => x.employerId == id);
+
+             if (employer == null)
+             {
+                 return NotFound();
+             }
+             else
+             {
+                 _context.Remove(employer);
+                 _context.Remove(enployer_profile);
+                 await _context.SaveChangesAsync();
+                 return employer;
+             }
+         }
+
+         [HttpPut("{id}")]
+         public async Task<ActionResult> Update_Employers(int id, EmployersDTO employer)
+         {
+             if (id != employer.employerId || !EmployerExists(id))
+             {
+                 return BadRequest();
+             }
+             else
+             {
+                 var employer = _context.Employers.SingleOrDefault(x => x.id == id);
+                 var employer_profile = _context.Employers_Description.SingleOrDefault(x => x.employerId == id);
+                 employer.id = employer.employerId;
+                 employer.Name = employer.Name;
+                 employer.Entreprise = employer.Entreprise;
+                 employer_profile.Age = employer.Age;
+                 employer_profile.Job = employer.Job;
+                 employer_profile.Country = employer.Country;
+                 await _context.SaveChangesAsync();
+                 return NoContent();
+             }
+         }
+
+         private bool EmployerExists(int id)
+         {
+             return _context.Employers.Any(x => x.id == id);
+         }
+    }
+}
