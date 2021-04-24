@@ -12,5 +12,8 @@ namespace Models
         public string Jobs_exp { get; set; }
         public string Skills {get; set;}
 
+        [RegularExpression(@"^[A-E]+[a-eA-E]*$")]
+        public string Rating {get; set;}
+
     }
 }

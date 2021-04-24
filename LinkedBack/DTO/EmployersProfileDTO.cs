@@ -6,6 +6,6 @@ namespace DTO
 {
     public class EmployersProfileDTO : EmployersDTO
     {
-        public List<JobDTO> Job { get; set; }
+        public List<JobDTO> Jobs { get; set; }
     }
 }

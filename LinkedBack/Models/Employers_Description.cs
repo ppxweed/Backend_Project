@@ -10,5 +10,8 @@ namespace Models
         public string Job { get; set; }
         public string Country { get; set; }
         public int Age {get; set;}
+
+        [RegularExpression(@"^[A-E]+[a-eA-E]*$")]
+        public string Rating {get; set;}
     }
 }

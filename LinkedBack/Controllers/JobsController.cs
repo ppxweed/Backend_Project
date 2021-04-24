@@ -33,7 +33,6 @@ namespace LinkedBack.Controllers
                 Jobs_id = jobs.id,
                 Salary = jobs_descriptions.Salary,
                 Name = jobs.Name,
-                Entreprise = jobs_descriptions.Entreprise,
                 Skills_required = jobs_descriptions.Skills_required
             };
 
@@ -51,7 +50,6 @@ namespace LinkedBack.Controllers
                 Jobs_id = jobs.id,
                 Salary = jobs_descriptions.Salary,
                 Name = jobs.Name,
-                Entreprise = jobs_descriptions.Entreprise,
                 Skills_required = jobs_descriptions.Skills_required
             };
 
@@ -74,15 +72,14 @@ namespace LinkedBack.Controllers
 
             var job = new Jobs()
             {
-                name = jobDTO.Name
+                Name = jobDTO.Name
             };
             await _context.Jobs.AddAsync(job);
             await _context.SaveChangesAsync();
 
             var jobs_description = new Jobs_Description()
             {
-                job_id = job.id,
-                job_name = jobDTO.Name,
+                Jobs_id = job.id,
                 Salary = jobDTO.Salary,
                 Skills_required = jobDTO.Skills_required
             };
@@ -96,7 +93,7 @@ namespace LinkedBack.Controllers
         public async Task<ActionResult<Jobs>> Delete_Jobs(int id)
         {
             var job = _context.Jobs.Find(id);
-            var job_description = _context.Jobs_Description.SingleOrDefault(x => x.job_id == id);
+            var job_description = _context.Jobs_Description.SingleOrDefault(x => x.Jobs_id == id);
 
             if(job == null)
             {
@@ -114,14 +111,14 @@ namespace LinkedBack.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update_Jobs(int id, JobDTO jobs)
         {
-            if(id != jobs.Book_id || !JobExists(id))
+            if(id != jobs.Employers_id || !JobExists(id))
             {
                 return BadRequest();
             }
             else 
             {
                 var job = _context.Jobs.SingleOrDefault(x => x.id == id);
-                var job_description = _context.Jobs_Description.SingleOrDefault(x => x.job_id == id);
+                var job_description = _context.Jobs_Description.SingleOrDefault(x => x.Jobs_id == id);
 
 
                 job_description.Salary = jobs.Salary;

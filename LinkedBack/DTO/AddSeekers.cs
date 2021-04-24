@@ -14,5 +14,7 @@ namespace DTO
         public int Age { get; set; }
         [Required]
         public string Skills { get; set; }
+        [Required]
+        public string Rating { get; set; }
     }
 }

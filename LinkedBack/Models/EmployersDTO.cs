@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 namespace Models
 {
     public class EmployersDTO
@@ -8,6 +9,8 @@ namespace Models
         public string Job {get; set;}
         public string Country { get; set; }
         public string Entreprise {get; set;}
+        [RegularExpression("^[A-E]+[a-eA-E]*$", ErrorMessage = "*Rating beetween A to E")]
+        public string Rating {get; set;}
 
     }
 }

@@ -23,14 +23,15 @@ namespace backend_database_HTTP_Requests.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EmployersDTO>>> GetEmployers()
         {
-            var employer = from employers in _context.Employers join Employers_description in _context.Employers_Description on Employers.id equals Employers_description.employers_id
+            var employer = from employers in _context.Employers join Employers_description in _context.Employers_Description on employers.id equals Employers_description.Employers_id
             select new EmployersDTO {
                 Employers_id = employers.id,
                 Age = Employers_description.Age,
                 Name = employers.Name,
                 Job = Employers_description.Job,
                 Country = Employers_description.Country,
-                Entreprise = employers.Entreprise
+                Entreprise = employers.Entreprise,
+                Rating = Employers_description.Rating
             };
 
             return await employer.ToListAsync();
@@ -42,12 +43,11 @@ namespace backend_database_HTTP_Requests.Controllers
             var job = from jobs in _context.Jobs
             join job_descriptions in _context.Jobs_Description on jobs.id equals job_descriptions.Jobs_id
             join jobs_list in _context.Jobs_list on jobs.id equals jobs_list.Jobs_id
-            select new JobsDTO
+            select new JobDTO
             {
 
                 Jobs_id = jobs.id,
                 Name = jobs.Name,
-                Jobs_id_id = job_descriptions.Jobs_id,
                 Salary = job_descriptions.Salary,
                 Skills_required = job_descriptions.Skills_required,
                 Allocation_date = jobs_list.Allocation_date,
@@ -58,7 +58,7 @@ namespace backend_database_HTTP_Requests.Controllers
             };
 
             var employer = from employers in _context.Employers 
-            join Employers_description in _context.Employers_Description on Employers.id equals Employers_description.employers_id
+            join Employers_description in _context.Employers_Description on employers.id equals Employers_description.Employers_id
             join jobs_list in _context.Jobs_list on employers.id equals jobs_list.Jobs_id
             select new EmployersProfileDTO
             {
@@ -68,10 +68,11 @@ namespace backend_database_HTTP_Requests.Controllers
                 Job = Employers_description.Job,
                 Country = Employers_description.Country,
                 Entreprise = employers.Entreprise,
+                Rating = Employers_description.Rating,
                 Jobs = job.Where(x => x.Jobs_id== jobs_list.Jobs_id).ToList()
             };
 
-            var employer_by_id = employer.ToList().Find(x => x.employers_id == id);
+            var employer_by_id = employer.ToList().Find(x => x.Employers_id == id);
 
             if (employer_by_id == null)
             {
@@ -99,10 +100,11 @@ namespace backend_database_HTTP_Requests.Controllers
 
              var employer_profile = new Employers_Description()
              {
-                 employerId = employer.id,
+                 Employers_id = employer.id,
                  Job = employerDTO.Job,
                  Age = employerDTO.Age,
-                 Country = employerDTO.Country
+                 Country = employerDTO.Country,
+                 Rating = employerDTO.Rating
              };
              await _context.AddAsync(employer_profile);
 
@@ -116,7 +118,7 @@ namespace backend_database_HTTP_Requests.Controllers
          public async Task<ActionResult<Employers>> Delete_Employer(int id)
          {
              var employer = _context.Employers.Find(id);
-             var employer_profile = _context.Employers_Description.SingleOrDefault(x => x.employerId == id);
+             var employer_profile = _context.Employers_Description.SingleOrDefault(x => x.Employers_id == id);
 
              if (employer == null)
              {
@@ -125,7 +127,7 @@ namespace backend_database_HTTP_Requests.Controllers
              else
              {
                  _context.Remove(employer);
-                 _context.Remove(enployer_profile);
+                 _context.Remove(employer_profile);
                  await _context.SaveChangesAsync();
                  return employer;
              }
@@ -134,20 +136,21 @@ namespace backend_database_HTTP_Requests.Controllers
          [HttpPut("{id}")]
          public async Task<ActionResult> Update_Employers(int id, EmployersDTO employer)
          {
-             if (id != employer.employerId || !EmployerExists(id))
+             if (id != employer.Employers_id || !EmployerExists(id))
              {
                  return BadRequest();
              }
              else
              {
-                 var employer = _context.Employers.SingleOrDefault(x => x.id == id);
-                 var employer_profile = _context.Employers_Description.SingleOrDefault(x => x.employerId == id);
-                 employer.id = employer.employerId;
-                 employer.Name = employer.Name;
-                 employer.Entreprise = employer.Entreprise;
-                 employer_profile.Age = employer.Age;
-                 employer_profile.Job = employer.Job;
-                 employer_profile.Country = employer.Country;
+                 var employers = _context.Employers.SingleOrDefault(x => x.id == id);
+                 var employer_profile = _context.Employers_Description.SingleOrDefault(x => x.Employers_id == id);
+                 employers.id = employer_profile.Employers_id;
+                 employers.Name = employer.Name;
+                 employers.Entreprise = employer.Entreprise;
+                 employer_profile.Age = employer_profile.Age;
+                 employer_profile.Job = employer_profile.Job;
+                 employer_profile.Country = employer_profile.Country;
+                 employer_profile.Rating = employer_profile.Rating;
                  await _context.SaveChangesAsync();
                  return NoContent();
              }
