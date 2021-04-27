@@ -50,45 +50,48 @@ namespace Controllers
         [HttpPost("login")]
         public IActionResult SignIn([FromBody]Login log)
         {
+            var user = _UserDevices.Login(log.Mail, log.Cool_pwd);
+
+            if (!(user != null))
+                return BadRequest(new { message = "Mails or The cool_password is incorrect, please try again" });
+
+            var tokenBEARER = new JwtSecurityTokenHandler();
+            var key_cesar = Encoding.ASCII.GetBytes(_Config["Secret"]);
+            var tokenCrypto = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[] //WE CAN'T CHANGE THE NAME or THE ROLE so deal with it
+                {
+                    new Claim(ClaimTypes.Name, user.id.ToString()),
+                    new Claim(ClaimTypes.Role, user.Level ?? "null")
+                }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key_cesar), SecurityAlgorithms.HmacSha256Signature)
+            };
             var token = tokenBEARER.CreateToken(tokenCrypto);
             var tokenS = tokenBEARER.WriteToken(token);
             return Ok(new
             {
-                id = people.id,
-                Mails = people.Mails,
-                FirstName = people.FirstName,
-                LastName = people.LastName,
+                id = user.id,
+                Mails = user.Mails,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 Token = tokenS
             });
 
-            var people = _UserDevices.SingIn(log.Mail, log.Cool_pwd);
-
-            if (!(people != null))
-                return BadRequest(new { message = "Mails or The cool_password is incorrect, please try again" });
+            
 
 
             
 
-            var tokenBEARER = new JwtSecurityTokenHandler();
-            var key_cesar = Encoding.ASCII.GetBytes(Configuration["Secret"]);
-            var tokenCrypto = new SecurityTokenDescriptor
-            {
-                Subj = new ClaimsIdentity(new Claim[] //WE CAN'T CHANGE THE NAME or THE ROLE so deal with it
-                {
-                    new Claim(ClaimTypes.Name, people.id.ToString()),
-                    new Claim(ClaimTypes.Role, people.Level ?? "null")
-                }),
-                Exp = DateTime.UtcNow.AddDays(7),
-                SignIng = new SigningCredentials(new SymmetricSecurityKey(key_cesar), SecurityAlgorithms.HmacSha256Signature)
-            };
+           
         }
 
         [Authorize(Roles = Level.Admin)]
         [HttpPost("level/{id}")]
-        public IActionResult ChangeLevel(int id, UpdateLevelDTO Level)
+        public IActionResult ChangeLevel(int id, UpdateLevelDTO lvl)
         {
             //Always keep the admin for one person
-            _ctxt.User.Find(id).Level = model.Level;
+            _ctxt.User.Find(id).Level = lvl.Level;
             _ctxt.SaveChanges();
             return Ok("The level has been updated! Keep an eye on it");
         }
@@ -102,10 +105,10 @@ namespace Controllers
 
             try
             {
-                _UserDevices.Create(people, index.Cool_pwd);
+                _UserDevices.NewUser(people, index.Cool_pwd);
                 return Ok();
             }
-            catch (AppException error)
+            catch (Verification error)
             {
                 return BadRequest(new { message = error.Message });
             }
@@ -131,13 +134,13 @@ namespace Controllers
         [HttpPost("mail")]
         public async Task<IActionResult> SendEmail(EmailDTO index)
         {
-            var pop = new List<string>();
-            foreach (var items in index.pop)
+            var mails = new List<string>();
+            foreach (var items in index.Mails)
             {
-                pop.Add(items);
+                mails.Add(items);
             }
 
-            var answer = await _mailDevices.SendMail(pop, index.Subject, index.Message);
+            var answer = await _mailDevices.SendMail(mails, index.Mails_Subj, index.Mails_Body);
 
             if (answer.StatusCode == System.Net.HttpStatusCode.Accepted)
             {
@@ -172,10 +175,10 @@ namespace Controllers
 
             try
             {
-                _UserDevices.Update_profile(user, index.Current_Cool_pwd, index.New_Cool_pwd, index.CheckNew_Cool_pwd);
+                _UserDevices.Update_profile(people, index.Current_Cool_pwd, index.New_Cool_pwd, index.CheckNew_Cool_pwd);
                 return Ok();
             }
-            catch (AppException error)
+            catch (Verification error)
             {
                 return BadRequest(new { msg = error.Message });
             }

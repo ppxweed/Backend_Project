@@ -35,22 +35,20 @@ namespace Mails
         {
             if (string.IsNullOrEmpty(mails) || string.IsNullOrEmpty(cool_pwd))
             {
-                return ("You forget a case, please check out for the login");
+                return (null);
             }
 
-            string log = "";
-            if (_context.User.FirstOrDefault(x => x.Mails == mails) != null) 
+            
+            var log = _context.User.FirstOrDefault(x => x.Mails == mails) ?? null;
+
+            if (log == null)
             {
-                log = _context.User.FirstOrDefault(x => x.Mails == mails);
-            }
-            else 
-            {
-                log = null;
+                return null;
             }
 
             if (mails == null)
             {
-                return ("The Mail is not register please try with another");
+                return (null);
             }
 
             if(CodedPWD(cool_pwd) != log.Cool_PWD)
@@ -74,14 +72,14 @@ namespace Mails
         {
             if (string.IsNullOrWhiteSpace(cool_pwd))
             {
-                throw new AppException("Password is required please can you fill it");
+                throw new Verification("Password is required please can you fill it");
             }
 
             if (_context.User.Any(x => x.Mails == mail.Mails))
             {
-                throw new AppException("This mail \"" + mail.Mails + "\" is already taken");
+                throw new Verification("This mail \"" + mail.Mails + "\" is already taken");
             }
-            mail.Cool_PWD = computeHash(cool_pwd);  
+            mail.Cool_PWD = CodedPWD(cool_pwd);  
             mail.Level = null;
             mail.Alive = DateTime.UtcNow;
             mail.LastSeen = DateTime.UtcNow;
@@ -99,23 +97,23 @@ namespace Mails
 
             if (!string.IsNullOrWhiteSpace(current_cool_pwd))
             {   
-                if(computeHash(current_cool_pwd) != mail.Cool_PWD)
+                if(CodedPWD(current_cool_pwd) != mail.Cool_PWD)
                 {
-                    throw new AppException("Invalid Current cool password! For your own good");
+                    throw new Verification("Invalid Current cool password! For your own good");
                 }
 
                 if(current_cool_pwd == cool_pwd)
                 {
-                    throw new AppException("Please choose another cool password!");
+                    throw new Verification("Please choose another cool password!");
                 }
 
-                mail.Cool_PWD = computeHash(cool_pwd);
+                mail.Cool_PWD = CodedPWD(cool_pwd);
                 mail.LastSeen = DateTime.UtcNow; 
             }
 
             if (!(mail != null))
             {
-                throw new AppException("Mail not found, are you sure ?");
+                throw new Verification("Mail not found, are you sure ?");
             }
 
              if (!string.IsNullOrWhiteSpace(Parameter.LastName))
@@ -130,12 +128,12 @@ namespace Mails
             }
            
 
-            if (!string.IsNullOrWhiteSpace(Parameter.Mails) && Parameter.Username != mail.Mails)
+            if (!string.IsNullOrWhiteSpace(Parameter.Mails) && Parameter.Mails != mail.Mails)
             {
 
                 if (_context.User.Any(x => x.Mails == Parameter.Mails))
                 {
-                    throw new AppException("The Mail " + userParam.Mails + " is already taken, bad luck i guess");
+                    throw new Verification("The Mail " + Parameter.Mails + " is already taken, bad luck i guess");
                 }
                 else
                 {
@@ -177,7 +175,7 @@ namespace Mails
         {
             if(string.IsNullOrEmpty(account))
             {
-                throw new AppException(" A valid Account is requred, register first or try again");
+                throw new Verification(" A valid Account is requred, register first or try again");
             }
             else
             {
@@ -185,7 +183,7 @@ namespace Mails
                 if(mail != null)
                 {
                     string key = CesarKey(5);
-                    mail.Cool_PWD = computeHash(key);
+                    mail.Cool_PWD = CodedPWD(key);
                     mail.LastSeen = DateTime.UtcNow;
                     _context.SaveChanges();
                     
@@ -226,7 +224,7 @@ namespace Mails
             {
                 stringo += bytes.ToString("x2"); 
             }
-            return Uppercase[randomUpper] + hashstring + Specials[randomSpecial];
+            return Uppercase[randomUpper] + stringo + Specials[randomSpecial];
         }
     }
 }
