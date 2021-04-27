@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DTO
 {
-    public class Authenticate
+    public class Login
     {
         [Required]
         public string Mail { get; set; }

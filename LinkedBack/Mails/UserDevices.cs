@@ -9,14 +9,23 @@ using LinkedBack.Data;
 
 namespace Mails
 {
-    
+        public interface IUser
+    {
+        User Login(string mails, string cool_pwd);
+        IEnumerable<User> GetAllOfThem();
+        User GetById(int id);
+        User NewUser(User login, string cool_pwd);
+        void Update_profile(User login, string current_cool_pwd, string cool_pwd, string check_cool_pwd);
+        string ForgottenPwd(string mails);
+        void Delete_Account(int id);
+    }
 
     public class UserDevices : IUser
     {
         private Context _context;
-        private readonly IEmailService _mailDevices;
+        private readonly Emails _mailDevices;
 
-        public UserDevices(Context ctxt, IEmailService email)
+        public UserDevices(Context ctxt, Emails email)
         {
             _context = ctxt;
             _mailDevices = email;
@@ -50,16 +59,7 @@ namespace Mails
             }
             return log;        
         }
-        public interface IUser
-    {
-        User Login(string mails, string cool_pwd);
-        IEnumerable<User> GetAllOfThem();
-        User GetById(int id);
-        User NewUser(User login, string cool_pwd);
-        void Update_profile(User login, string current_cool_pwd, string cool_pwd, string check_cool_pwd);
-        string ForgottenPwd(string mails);
-        void Delete_Account(int id);
-    }
+    
         public IEnumerable<User> GetAllOfThem()
         {
             return _context.User;
@@ -193,7 +193,7 @@ namespace Mails
                     var Subj = "Password Recovery becareful next time, it's important to register it";
                     var Body = key;
 
-                    var answer = _mailDevices.SendEmailAsync(Address,Subj,Body);
+                    var answer = _mailDevices.SendMail(Address,Subj,Body);
                     System.Console.WriteLine(answer.Result.StatusCode);
 
                     if(answer.IsCompletedSuccessfully)
