@@ -1,0 +1,232 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using Optimisation;
+using Models;
+using LinkedBack.Data;
+
+namespace Mails
+{
+    
+
+    public class UserDevices : IUser
+    {
+        private Context _context;
+        private readonly IEmailService _mailDevices;
+
+        public UserDevices(Context ctxt, IEmailService email)
+        {
+            _context = ctxt;
+            _mailDevices = email;
+        }
+
+        public User Login(string mails, string cool_pwd)
+        {
+            if (string.IsNullOrEmpty(mails) || string.IsNullOrEmpty(cool_pwd))
+            {
+                return ("You forget a case, please check out for the login");
+            }
+
+            string log = "";
+            if (_context.User.FirstOrDefault(x => x.Mails == mails) != null) 
+            {
+                log = _context.User.FirstOrDefault(x => x.Mails == mails);
+            }
+            else 
+            {
+                log = null;
+            }
+
+            if (mails == null)
+            {
+                return ("The Mail is not register please try with another");
+            }
+
+            if(CodedPWD(cool_pwd) != log.Cool_PWD)
+            {
+                return null;
+            }
+            return log;        
+        }
+        public interface IUser
+    {
+        User Login(string mails, string cool_pwd);
+        IEnumerable<User> GetAllOfThem();
+        User GetById(int id);
+        User NewUser(User login, string cool_pwd);
+        void Update_profile(User login, string current_cool_pwd, string cool_pwd, string check_cool_pwd);
+        string ForgottenPwd(string mails);
+        void Delete_Account(int id);
+    }
+        public IEnumerable<User> GetAllOfThem()
+        {
+            return _context.User;
+        }
+
+        public User GetById(int id)
+        {
+            return _context.User.Find(id);
+        }
+
+        public User NewUser(User mail, string cool_pwd)
+        {
+            if (string.IsNullOrWhiteSpace(cool_pwd))
+            {
+                throw new AppException("Password is required please can you fill it");
+            }
+
+            if (_context.User.Any(x => x.Mails == mail.Mails))
+            {
+                throw new AppException("This mail \"" + mail.Mails + "\" is already taken");
+            }
+            mail.Cool_PWD = computeHash(cool_pwd);  
+            mail.Level = null;
+            mail.Alive = DateTime.UtcNow;
+            mail.LastSeen = DateTime.UtcNow;
+
+            _context.User.Add(mail);
+            _context.SaveChanges();
+
+            return mail;
+        }
+
+        public void Update_profile(User Parameter, string current_cool_pwd = null, string cool_pwd = null, string check_cool_pwd = null)
+        {
+
+            var mail = _context.User.Find(Parameter.id);
+
+            if (!string.IsNullOrWhiteSpace(current_cool_pwd))
+            {   
+                if(computeHash(current_cool_pwd) != mail.Cool_PWD)
+                {
+                    throw new AppException("Invalid Current cool password! For your own good");
+                }
+
+                if(current_cool_pwd == cool_pwd)
+                {
+                    throw new AppException("Please choose another cool password!");
+                }
+
+                mail.Cool_PWD = computeHash(cool_pwd);
+                mail.LastSeen = DateTime.UtcNow; 
+            }
+
+            if (!(mail != null))
+            {
+                throw new AppException("Mail not found, are you sure ?");
+            }
+
+             if (!string.IsNullOrWhiteSpace(Parameter.LastName))
+            {
+                mail.LastName = Parameter.LastName;
+                mail.LastSeen = DateTime.UtcNow;
+            }
+            if (!string.IsNullOrWhiteSpace(Parameter.FirstName))
+            {
+                mail.FirstName = Parameter.FirstName;
+                mail.LastSeen = DateTime.UtcNow;
+            }
+           
+
+            if (!string.IsNullOrWhiteSpace(Parameter.Mails) && Parameter.Username != mail.Mails)
+            {
+
+                if (_context.User.Any(x => x.Mails == Parameter.Mails))
+                {
+                    throw new AppException("The Mail " + userParam.Mails + " is already taken, bad luck i guess");
+                }
+                else
+                {
+                    mail.Mails = Parameter.Mails;
+                    mail.LastSeen = DateTime.UtcNow;
+                }
+            }
+            
+
+            //DO NOT FORGET THE UPDATE & CHANGES
+            
+            _context.User.Update(mail);
+            _context.SaveChanges();
+        }
+
+        public void Delete_Account(int id)
+        {
+            var mail = _context.User.Find(id);
+            if (mail != null)
+            {
+                _context.User.Remove(mail);
+                _context.SaveChanges();
+            }
+        }
+
+        private static string CodedPWD(string The_Word)
+        {
+            MD5 crypto = new MD5CryptoServiceProvider();
+            var test = crypto.ComputeHash(Encoding.UTF8.GetBytes(The_Word));
+            var cesar = "";
+            foreach(var cesarus in test)
+            {
+                cesar += cesarus.ToString("x2");  //LET BE 2 , 3 is too big and 1,5 too short
+            } 
+            return cesar;
+        }
+
+        public string ForgottenPwd(string account)
+        {
+            if(string.IsNullOrEmpty(account))
+            {
+                throw new AppException(" A valid Account is requred, register first or try again");
+            }
+            else
+            {
+                var mail = _context.User.SingleOrDefault(x => x.Mails == account);
+                if(mail != null)
+                {
+                    string key = CesarKey(5);
+                    mail.Cool_PWD = computeHash(key);
+                    mail.LastSeen = DateTime.UtcNow;
+                    _context.SaveChanges();
+                    
+                    var Address = new List<string>(){account};
+                    var Subj = "Password Recovery becareful next time, it's important to register it";
+                    var Body = key;
+
+                    var answer = _mailDevices.SendEmailAsync(Address,Subj,Body);
+                    System.Console.WriteLine(answer.Result.StatusCode);
+
+                    if(answer.IsCompletedSuccessfully)
+                    {
+                        return new string("You're going to receive an email with your new password");
+                    }
+                }
+                return new string("Your email does't exist please try again");
+            }
+        }
+
+        private static string CesarKey(int Length_word)
+        {
+            char[] Specials = @"!#$%&*@\/^-_+=".ToCharArray();
+            char[] Uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+
+
+            Random randomaseur = new Random();
+            int randomSpecial = randomaseur.Next(0,Specials.Length -1);
+            int randomUpper = randomaseur.Next(0,Uppercase.Length -1);
+
+
+            RNGCryptoServiceProvider Crypto = new RNGCryptoServiceProvider();
+            byte[] index = new byte[Length_word];
+            Crypto.GetBytes(index);
+            
+            
+            string stringo = "";
+            foreach(var bytes in index)
+            {
+                stringo += bytes.ToString("x2"); 
+            }
+            return Uppercase[randomUpper] + hashstring + Specials[randomSpecial];
+        }
+    }
+}

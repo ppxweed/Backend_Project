@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DTO
 {
-    public class SendEmailDTO
+    public class EmailDTO
     {
         [Required]
-        public List<string> emails {get; set;}
-        public string Subject { get; set; }
+        public List<string> Mails {get; set;}
+        public string Mails_Subj { get; set; }
         [Required]
-        public string Message { get; set; }
+        public string Mails_Body { get; set; }
     }
 }

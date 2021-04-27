@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DTO
 {
-    public class RegisterModel
+    public class RegisterUser
     {
         [Required]
         public string FirstName { get; set; }
@@ -11,9 +11,9 @@ namespace DTO
         public string LastName { get; set; }
 
         [Required]
-        public string Username { get; set; }
+        public string Mail { get; set; }
 
         [Required]
-        public string Password { get; set; }
+        public string Cool_pwd { get; set; }
     }
 }

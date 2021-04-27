@@ -1,6 +1,6 @@
 namespace DTO
 {
-    public class AccessLevel
+    public class Level
     {
         public const string Admin = "Admin";
         public const string Employers = "Employers";
