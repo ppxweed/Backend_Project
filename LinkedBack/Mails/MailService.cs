@@ -9,14 +9,21 @@ namespace Mails
     
     public class MailService : Emails
     {
-        public IConfiguration Configuration {get;}
+        public IConfiguration Config {get;}
 
         public Service(IConfiguration configuration)
         {
-            Configuration = configuration;
+            Config = configuration;
         }
 
-        public async Task<Response> ExecuteMail(string Key, string subj, string body, List<string> mails)
+        
+        public async Task<Response> SendMail(List<string>  mails, string subj, string body)
+        {
+            return await ExecuteMail(Config["SENDGRIDKEY"], subj, body, mails);
+        }
+    }
+
+    public async Task<Response> ExecuteMail(string Key, string subj, string body, List<string> mails)
         {
             var user = new SendGridClient(Key);
             var sms = new SendGridMessage()
@@ -35,17 +42,6 @@ namespace Mails
             Response answer = await user.SendMail(sms);
             return answer;
         }
-
-        public async Task<Response> SendMail(List<string>  mails, string subj, string body)
-        {
-            return await ExecuteMail(Configuration["SENDGRIDKEY"], subj, body, mails);
-        }
-    }
-
-
-
-
-
 
     public interface Emails
     {
