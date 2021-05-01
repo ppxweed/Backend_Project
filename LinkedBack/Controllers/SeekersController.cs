@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using LinkedBack.Data;
 using LinkedBack.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend_database_HTTP_Requests.Controllers
 {
@@ -19,7 +20,7 @@ namespace backend_database_HTTP_Requests.Controllers
         {
             _context = context;
         }
-
+        [Authorize(Roles = "Admin, Employers, Seekers")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SeekersDTO>>> GetSeekers()
         {
@@ -36,7 +37,7 @@ namespace backend_database_HTTP_Requests.Controllers
 
             return await seek.ToListAsync();
         }
-
+        [Authorize(Roles = "Admin, Employers, Seekers")]
         [HttpGet("{id}")]
         public ActionResult<SeekersDTO> GetSeekers_byId(int id)
         {
@@ -50,11 +51,11 @@ namespace backend_database_HTTP_Requests.Controllers
                 Name = jobs.Name,
                 Salary = job_descriptions.Salary,
                 Skills_required = job_descriptions.Skills_required,
-                Allocation_date = jobs_list.Allocation_date,
-                Return_date = jobs_list.Return_date,
+                In_Progress = jobs_list.In_Progress,
+                Work_Done = jobs_list.Work_Done,
                 Employers_id = jobs_list.Employers_id,
                 id = jobs_list.id,
-                Renewed = jobs_list.Renewed
+                People_work = jobs_list.People_work
             };
             var seek = from seeks in _context.Seekers join seekers_description in _context.Seekers_Description on seeks.id equals seekers_description.Seeker_id
             join jobs_list in _context.Jobs_list on seeks.id equals jobs_list.Jobs_id
@@ -79,7 +80,7 @@ namespace backend_database_HTTP_Requests.Controllers
             return seek_by_id;
         }
 
-
+        [Authorize(Roles = "Admin, Seekers")]
         [HttpPost]
          public async Task<ActionResult> Add_Seeks(AddSeekers seekerDTO)
          {
@@ -109,7 +110,7 @@ namespace backend_database_HTTP_Requests.Controllers
              return CreatedAtAction("GetSeekers", new { id = seek.id }, seekerDTO);
          }
 
-
+        [Authorize(Roles = "Admin")]
          [HttpDelete("{id}")]
          public async Task<ActionResult<Seekers>> Delete_Seekers(int id)
          {
@@ -128,7 +129,7 @@ namespace backend_database_HTTP_Requests.Controllers
                  return seek;
              }
          }
-
+        [Authorize(Roles = "Admin, Seekers")]
         [HttpPut("{id}")]
          public async Task<ActionResult> Update_Seekers(int id, SeekersDTO seek)
          {

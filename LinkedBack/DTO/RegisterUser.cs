@@ -11,7 +11,7 @@ namespace DTO
         public string LastName { get; set; }
 
         [Required]
-        public string Mail { get; set; }
+        public string Mails { get; set; }
 
         [Required]
         public string Cool_pwd { get; set; }

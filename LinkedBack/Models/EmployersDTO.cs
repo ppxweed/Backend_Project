@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using LinkedBack.DTO;
 namespace Models
 {
-    public class EmployersDTO
+    public class EmployersDTO 
     {
         public int Employers_id { get; set; }
         public string Name { get; set; }
@@ -17,7 +17,6 @@ namespace Models
 
         public int User_id {get;set;}
 
-        public List<JobDTO> Jobs { get; set; }
 
     }
 }

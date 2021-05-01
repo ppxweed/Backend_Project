@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using LinkedBack.Data;
 using LinkedBack.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend_database_HTTP_Requests.Controllers
 {
@@ -19,7 +20,7 @@ namespace backend_database_HTTP_Requests.Controllers
         {
             _context = context;
         }
-
+        [Authorize(Roles = "Admin, Employers, Seekers")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EmployersDTO>>> GetEmployers()
         {
@@ -37,7 +38,7 @@ namespace backend_database_HTTP_Requests.Controllers
 
             return await employer.ToListAsync();
         }
-
+        [Authorize(Roles = "Admin, Employers, Seekers")]
         [HttpGet("{id}")]
         public ActionResult<EmployersDTO> GetEmployer_byId(int id)
         {
@@ -51,11 +52,11 @@ namespace backend_database_HTTP_Requests.Controllers
                 Name = jobs.Name,
                 Salary = job_descriptions.Salary,
                 Skills_required = job_descriptions.Skills_required,
-                Allocation_date = jobs_list.Allocation_date,
-                Return_date = jobs_list.Return_date,
+                In_Progress = jobs_list.In_Progress,
+                Work_Done = jobs_list.Work_Done,
                 Employers_id = jobs_list.Employers_id,
                 id = jobs_list.id,
-                Renewed = jobs_list.Renewed
+                People_work = jobs_list.People_work
             };
 
             var employer = from employers in _context.Employers 
@@ -83,7 +84,7 @@ namespace backend_database_HTTP_Requests.Controllers
             return employer_by_id;
         }
 
-
+        [Authorize(Roles = "Admin, Employers")]
         [HttpPost]
          public async Task<ActionResult> Add_Employers(AddEmployers employerDTO)
          {
@@ -114,7 +115,7 @@ namespace backend_database_HTTP_Requests.Controllers
              return CreatedAtAction("GetEmployers", new { id = employer.id }, employerDTO);
          }
 
-
+        [Authorize(Roles = "Admin")]
          [HttpDelete("{id}")]
          public async Task<ActionResult<Employers>> Delete_Employer(int id)
          {
@@ -133,8 +134,9 @@ namespace backend_database_HTTP_Requests.Controllers
                  return employer;
              }
          }
-
-         [HttpPut("{id}")]
+        [Authorize(Roles = Level.Admin)]
+        [Authorize(Roles = Level.Employers)]
+        [HttpPut("{id}")]
          public async Task<ActionResult> Update_Employers(int id, EmployersDTO employer)
          {
              if (id != employer.Employers_id || !EmployerExists(id))

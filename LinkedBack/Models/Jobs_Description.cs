@@ -9,5 +9,6 @@ namespace LinkedBack.Models
         public int Jobs_id { get; set; }
         public int Salary { get; set; }
         public string Skills_required { get; set; }
+        public int Employers_id { get; set; }
     }
 }

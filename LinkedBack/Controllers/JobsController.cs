@@ -9,9 +9,10 @@ using LinkedBack.Models;
 using DTO;
 using Microsoft.AspNetCore.Authorization;
 
+
 namespace LinkedBack.Controllers
 {
-    [Authorize(Roles = "Admin, Support")]
+    
     [ApiController]
     [Route("[controller]")]
     public class JobsController : ControllerBase
@@ -22,7 +23,7 @@ namespace LinkedBack.Controllers
         {
             _context = context;
         }
-
+        //[Authorize(Roles = "Admin, Employers, Seekers")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<JobDTO>>> GetJobs()
         {
@@ -38,7 +39,7 @@ namespace LinkedBack.Controllers
 
             return await job.ToListAsync();
         }
-
+        [Authorize(Roles = "Admin, Employers, Seekers")]
         [HttpGet("{id}")]
         public ActionResult<JobDTO> GetJobs_byId(int id)
         {
@@ -61,7 +62,7 @@ namespace LinkedBack.Controllers
             }
             return jobs_by_id;
         }
-
+        [Authorize(Roles = "Admin, Employers")]
         [HttpPost]
         public async Task<ActionResult<AddJob>> Add_Jobs(AddJob jobDTO)
         {
@@ -81,14 +82,15 @@ namespace LinkedBack.Controllers
             {
                 Jobs_id = job.id,
                 Salary = jobDTO.Salary,
-                Skills_required = jobDTO.Skills_required
+                Skills_required = jobDTO.Skills_required,
+                Employers_id = jobDTO.Employers_id
             };
             await _context.AddAsync(jobs_description);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetJobs", new { id = job.id}, jobDTO);
         }
-
+        [Authorize(Roles = "Admin, Employers")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<Jobs>> Delete_Jobs(int id)
         {
@@ -107,7 +109,7 @@ namespace LinkedBack.Controllers
                 return job;
             }
         }
-
+        [Authorize(Roles = "Admin, Employers")]
         [HttpPut("{id}")]
         public async Task<ActionResult> Update_Jobs(int id, JobDTO jobs)
         {
