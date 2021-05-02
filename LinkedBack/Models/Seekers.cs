@@ -8,5 +8,7 @@ namespace Models
         public int id { get; set; }
         public string Name { get; set; }
 
+        public int use_id {get;set;}
+
     }
 }

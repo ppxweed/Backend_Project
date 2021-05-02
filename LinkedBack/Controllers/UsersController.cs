@@ -19,7 +19,7 @@ using LinkedBack.Data;
 
 namespace Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("[controller]")]
     public class UsersController : ControllerBase
@@ -86,7 +86,7 @@ namespace Controllers
            
         }
 
-        [Authorize(Roles = Level.Admin)]
+        //[Authorize(Roles = Level.Admin)]
         [HttpPost("level/{id}")]
         public IActionResult ChangeLevel(int id, UpdateLevelDTO lvl)
         {
@@ -130,7 +130,7 @@ namespace Controllers
             return Ok(index);
         }
 
-        [Authorize(Roles = Level.Admin)]
+        //[Authorize(Roles = Level.Admin)]
         [HttpPost("mail")]
         public async Task<IActionResult> SendEmail(EmailDTO index)
         {

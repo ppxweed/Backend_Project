@@ -9,7 +9,7 @@ using LinkedBack.Data;
 using LinkedBack.DTO;
 using Microsoft.AspNetCore.Authorization;
 
-namespace backend_database_HTTP_Requests.Controllers
+namespace LinkedBack.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -20,7 +20,7 @@ namespace backend_database_HTTP_Requests.Controllers
         {
             _context = context;
         }
-        [Authorize(Roles = "Admin, Employers, Seekers")]
+        //[Authorize(Roles = "Admin, Employers, Seekers")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SeekersDTO>>> GetSeekers()
         {
@@ -37,12 +37,12 @@ namespace backend_database_HTTP_Requests.Controllers
 
             return await seek.ToListAsync();
         }
-        [Authorize(Roles = "Admin, Employers, Seekers")]
+        //[Authorize(Roles = "Admin, Employers, Seekers")]
         [HttpGet("{id}")]
         public ActionResult<SeekersDTO> GetSeekers_byId(int id)
         {
             var job = from jobs in _context.Jobs
-            join job_descriptions in _context.Jobs_Description on jobs.id equals job_descriptions.Jobs_id
+            join job_descriptions in _context.Jobs_Description on jobs.id equals job_descriptions.jobs_id
             join jobs_list in _context.Jobs_list on jobs.id equals jobs_list.Jobs_id
             select new JobDTO
             {
@@ -54,7 +54,7 @@ namespace backend_database_HTTP_Requests.Controllers
                 In_Progress = jobs_list.In_Progress,
                 Work_Done = jobs_list.Work_Done,
                 Employers_id = jobs_list.Employers_id,
-                id = jobs_list.id,
+                Id = jobs_list.Id,
                 People_work = jobs_list.People_work
             };
             var seek = from seeks in _context.Seekers join seekers_description in _context.Seekers_Description on seeks.id equals seekers_description.Seeker_id
@@ -68,7 +68,7 @@ namespace backend_database_HTTP_Requests.Controllers
                 Adress = seekers_description.Adress,
                 Skills = seekers_description.Skills,
                 Rating = seekers_description.Rating,
-                Job = job.Where(x => x.Jobs_id== jobs_list.Jobs_id).ToList()
+                Jobs = job.Where(x => x.Jobs_id== jobs_list.Jobs_id).ToList()
             };
 
             var seek_by_id = seek.ToList().Find(x => x.Seekers_id == id);
@@ -80,7 +80,7 @@ namespace backend_database_HTTP_Requests.Controllers
             return seek_by_id;
         }
 
-        [Authorize(Roles = "Admin, Seekers")]
+        //[Authorize(Roles = "Admin, Seekers")]
         [HttpPost]
          public async Task<ActionResult> Add_Seeks(AddSeekers seekerDTO)
          {
@@ -91,7 +91,8 @@ namespace backend_database_HTTP_Requests.Controllers
 
              var seek = new Seekers()
              {
-                 Name = seekerDTO.Name
+                 Name = seekerDTO.Name,
+                 use_id = seekerDTO.use_id
              };
              await _context.Seekers.AddAsync(seek);
              await _context.SaveChangesAsync();
@@ -101,7 +102,8 @@ namespace backend_database_HTTP_Requests.Controllers
                  Seeker_id = seek.id,
                  Jobs_exp = seekerDTO.Jobs_exp,
                  Age = seekerDTO.Age,
-                 Adress = seekerDTO.Adress
+                 Adress = seekerDTO.Adress,
+                 Skills = seekerDTO.Skills
              };
              await _context.AddAsync(seek_profile);
 
@@ -110,7 +112,7 @@ namespace backend_database_HTTP_Requests.Controllers
              return CreatedAtAction("GetSeekers", new { id = seek.id }, seekerDTO);
          }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
          [HttpDelete("{id}")]
          public async Task<ActionResult<Seekers>> Delete_Seekers(int id)
          {
@@ -129,7 +131,7 @@ namespace backend_database_HTTP_Requests.Controllers
                  return seek;
              }
          }
-        [Authorize(Roles = "Admin, Seekers")]
+        //[Authorize(Roles = "Admin, Seekers")]
         [HttpPut("{id}")]
          public async Task<ActionResult> Update_Seekers(int id, SeekersDTO seek)
          {

@@ -7,6 +7,8 @@ namespace DTO
         [Required]
         public int Employers_id { get; set; }
         [Required]
+        public int Jobs_id { get; set; }
+        [Required]
         public string Name { get; set; }
         [Required]
         public string Skills_required { get; set; }

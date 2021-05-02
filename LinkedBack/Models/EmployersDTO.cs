@@ -17,6 +17,6 @@ namespace Models
 
         public int User_id {get;set;}
 
-
+        public List<JobDTO> Jobs {get; set;}
     }
 }

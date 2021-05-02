@@ -7,6 +7,5 @@ namespace DTO
     
     public class SeekersProfileDTO : SeekersDTO
     {
-        public List<JobDTO> Job { get; set; }
     }
 }

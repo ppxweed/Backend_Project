@@ -28,7 +28,7 @@ namespace LinkedBack.Controllers
         public async Task<ActionResult<IEnumerable<JobDTO>>> GetJobs()
         {
             var job = from jobs in _context.Jobs
-            join jobs_descriptions in _context.Jobs_Description on jobs.id equals jobs_descriptions.Jobs_id
+            join jobs_descriptions in _context.Jobs_Description on jobs.id equals jobs_descriptions.jobs_id
             select new JobDTO
             {
                 Jobs_id = jobs.id,
@@ -39,13 +39,13 @@ namespace LinkedBack.Controllers
 
             return await job.ToListAsync();
         }
-        [Authorize(Roles = "Admin, Employers, Seekers")]
+        //[Authorize(Roles = "Admin, Employers, Seekers")]
         [HttpGet("{id}")]
         public ActionResult<JobDTO> GetJobs_byId(int id)
         {
             
             var job = from jobs in _context.Jobs
-            join jobs_descriptions in _context.Jobs_Description on jobs.id equals jobs_descriptions.Jobs_id
+            join jobs_descriptions in _context.Jobs_Description on jobs.id equals jobs_descriptions.jobs_id
             select new JobDTO
             {
                 Jobs_id = jobs.id,
@@ -62,7 +62,7 @@ namespace LinkedBack.Controllers
             }
             return jobs_by_id;
         }
-        [Authorize(Roles = "Admin, Employers")]
+        //[Authorize(Roles = "Admin, Employers")]
         [HttpPost]
         public async Task<ActionResult<AddJob>> Add_Jobs(AddJob jobDTO)
         {
@@ -80,7 +80,7 @@ namespace LinkedBack.Controllers
 
             var jobs_description = new Jobs_Description()
             {
-                Jobs_id = job.id,
+                jobs_id = job.id,
                 Salary = jobDTO.Salary,
                 Skills_required = jobDTO.Skills_required,
                 Employers_id = jobDTO.Employers_id
@@ -90,12 +90,12 @@ namespace LinkedBack.Controllers
 
             return CreatedAtAction("GetJobs", new { id = job.id}, jobDTO);
         }
-        [Authorize(Roles = "Admin, Employers")]
+        //[Authorize(Roles = "Admin, Employers")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<Jobs>> Delete_Jobs(int id)
         {
             var job = _context.Jobs.Find(id);
-            var job_description = _context.Jobs_Description.SingleOrDefault(x => x.Jobs_id == id);
+            var job_description = _context.Jobs_Description.SingleOrDefault(x => x.jobs_id == id);
 
             if(job == null)
             {
@@ -109,7 +109,7 @@ namespace LinkedBack.Controllers
                 return job;
             }
         }
-        [Authorize(Roles = "Admin, Employers")]
+        //[Authorize(Roles = "Admin, Employers")]
         [HttpPut("{id}")]
         public async Task<ActionResult> Update_Jobs(int id, JobDTO jobs)
         {
@@ -120,7 +120,7 @@ namespace LinkedBack.Controllers
             else 
             {
                 var job = _context.Jobs.SingleOrDefault(x => x.id == id);
-                var job_description = _context.Jobs_Description.SingleOrDefault(x => x.Jobs_id == id);
+                var job_description = _context.Jobs_Description.SingleOrDefault(x => x.jobs_id == id);
 
 
                 job_description.Salary = jobs.Salary;

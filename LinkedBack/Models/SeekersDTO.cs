@@ -15,6 +15,8 @@ namespace Models
         [RegularExpression("^[A-E]+[a-eA-E]*$", ErrorMessage = "*Rating beetween A to E")]
         public string Rating {get; set;}
 
+        public List<JobDTO> Jobs {get; set;}
+
 
 
     }
