@@ -6,7 +6,7 @@ namespace Models
     {
         [Key]
         public int id { get; set; }
-        public int Seeker_id { get; set; }
+        public int Seekers_id { get; set; }
         public int Age { get; set; }
         public string Adress { get; set; }
         public string Jobs_exp { get; set; }

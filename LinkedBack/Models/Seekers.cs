@@ -7,8 +7,7 @@ namespace Models
         [Key]
         public int id { get; set; }
         public string Name { get; set; }
-
-        public int use_id {get;set;}
+        public int user_id {get;set;}
 
     }
 }

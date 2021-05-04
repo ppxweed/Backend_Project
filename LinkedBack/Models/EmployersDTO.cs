@@ -6,6 +6,7 @@ namespace Models
 {
     public class EmployersDTO 
     {
+
         public int Employers_id { get; set; }
         public string Name { get; set; }
         public int Age { get; set; }

@@ -24,9 +24,10 @@ namespace LinkedBack.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SeekersDTO>>> GetSeekers()
         {
-            var seek = from seeks in _context.Seekers join seekers_description in _context.Seekers_Description on seeks.id equals seekers_description.Seeker_id
+            var seek = from seeks in _context.Seekers join seekers_description in _context.Seekers_Description on seeks.id equals seekers_description.Seekers_id
             select new SeekersDTO {
                 Seekers_id = seeks.id,
+                user_id = seeks.user_id,
                 Age = seekers_description.Age,
                 Name = seeks.Name,
                 Jobs_exp = seekers_description.Jobs_exp,
@@ -57,7 +58,7 @@ namespace LinkedBack.Controllers
                 Id = jobs_list.Id,
                 People_work = jobs_list.People_work
             };
-            var seek = from seeks in _context.Seekers join seekers_description in _context.Seekers_Description on seeks.id equals seekers_description.Seeker_id
+            var seek = from seeks in _context.Seekers join seekers_description in _context.Seekers_Description on seeks.id equals seekers_description.Seekers_id
             join jobs_list in _context.Jobs_list on seeks.id equals jobs_list.Jobs_id
             select new SeekersProfileDTO
             {
@@ -68,6 +69,7 @@ namespace LinkedBack.Controllers
                 Adress = seekers_description.Adress,
                 Skills = seekers_description.Skills,
                 Rating = seekers_description.Rating,
+                user_id = seeks.user_id,
                 Jobs = job.Where(x => x.Jobs_id== jobs_list.Jobs_id).ToList()
             };
 
@@ -92,14 +94,14 @@ namespace LinkedBack.Controllers
              var seek = new Seekers()
              {
                  Name = seekerDTO.Name,
-                 use_id = seekerDTO.use_id
+                 user_id = seekerDTO.user_id
              };
              await _context.Seekers.AddAsync(seek);
              await _context.SaveChangesAsync();
 
              var seek_profile = new Seekers_Description()
              {
-                 Seeker_id = seek.id,
+                 Seekers_id = seek.id,
                  Jobs_exp = seekerDTO.Jobs_exp,
                  Age = seekerDTO.Age,
                  Adress = seekerDTO.Adress,
@@ -117,7 +119,7 @@ namespace LinkedBack.Controllers
          public async Task<ActionResult<Seekers>> Delete_Seekers(int id)
          {
              var seek = _context.Seekers.Find(id);
-             var seek_profile = _context.Seekers_Description.SingleOrDefault(x => x.Seeker_id == id);
+             var seek_profile = _context.Seekers_Description.SingleOrDefault(x => x.Seekers_id == id);
 
              if (seek == null)
              {
@@ -142,8 +144,8 @@ namespace LinkedBack.Controllers
              else
              {
                  var seeks = _context.Seekers.SingleOrDefault(x => x.id == id);
-                 var seek_profile = _context.Seekers_Description.SingleOrDefault(x => x.Seeker_id == id);
-                 seeks.id = seek.Seekers_id;
+                 var seek_profile = _context.Seekers_Description.SingleOrDefault(x => x.Seekers_id == id);
+                 seeks.id = seek_profile.Seekers_id;
                  seeks.Name = seek.Name;
                  seek_profile.Age = seek.Age;
                  seek_profile.Jobs_exp = seek.Jobs_exp;

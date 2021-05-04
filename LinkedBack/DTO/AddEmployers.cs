@@ -5,6 +5,8 @@ namespace DTO
     public class AddEmployers
     {
         [Required]
+        public int user_id { get; set; }
+        [Required]
         public string Name { get; set; }
         [Required]
         public string Entreprise { get; set; }

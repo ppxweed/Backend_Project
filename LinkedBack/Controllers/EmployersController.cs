@@ -96,7 +96,8 @@ namespace LinkedBack.Controllers
              var employer = new Employers()
              {
                  Name = employerDTO.Name,
-                 Entreprise = employerDTO.Entreprise
+                 Entreprise = employerDTO.Entreprise,
+                 user_id = employerDTO.user_id
              };
              await _context.Employers.AddAsync(employer);
              await _context.SaveChangesAsync();
@@ -149,10 +150,10 @@ namespace LinkedBack.Controllers
                  employers.id = employer_profile.Employers_id;
                  employers.Name = employer.Name;
                  employers.Entreprise = employer.Entreprise;
-                 employer_profile.Age = employer_profile.Age;
-                 employer_profile.Job = employer_profile.Job;
-                 employer_profile.Country = employer_profile.Country;
-                 employer_profile.Rating = employer_profile.Rating;
+                 employer_profile.Age = employer.Age;
+                 employer_profile.Job = employer.Job;
+                 employer_profile.Country = employer.Country;
+                 employer_profile.Rating = employer.Rating;
                  await _context.SaveChangesAsync();
                  return NoContent();
              }

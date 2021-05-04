@@ -5,7 +5,7 @@ namespace DTO
     public class AddSeekers
     {
         [Required]
-        public int use_id { get; set; }
+        public int user_id { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]

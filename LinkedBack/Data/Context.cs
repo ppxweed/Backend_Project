@@ -15,7 +15,6 @@ namespace LinkedBack.Data
 
         public DbSet<Employers> Employers {get; set;}
         public DbSet<Seekers> Seekers {get; set;}
-
         public DbSet<Employers_Description> Employers_Description {get; set;}
         public DbSet<Seekers_Description> Seekers_Description {get; set;}
 
