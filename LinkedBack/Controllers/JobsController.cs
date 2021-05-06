@@ -40,7 +40,7 @@ namespace LinkedBack.Controllers
             return await job.ToListAsync();
         }
         //[Authorize(Roles = "Admin, Employers, Seekers")]
-        [HttpGet("{id}")]
+        [HttpGet("job_{id}")]
         public ActionResult<JobDTO> GetJobs_byId(int id)
         {
             
@@ -91,7 +91,7 @@ namespace LinkedBack.Controllers
             return CreatedAtAction("GetJobs", new { id = job.id}, jobDTO);
         }
         //[Authorize(Roles = "Admin, Employers")]
-        [HttpDelete("{id}")]
+        [HttpDelete("job_{id}")]
         public async Task<ActionResult<Jobs>> Delete_Jobs(int id)
         {
             var job = _context.Jobs.Find(id);
@@ -110,10 +110,10 @@ namespace LinkedBack.Controllers
             }
         }
         //[Authorize(Roles = "Admin, Employers")]
-        [HttpPut("{id}")]
+        [HttpPut("job_{id}")]
         public async Task<ActionResult> Update_Jobs(int id, JobDTO jobs)
         {
-            if(id != jobs.Employers_id || !JobExists(id))
+            if(id != jobs.Jobs_id || !JobExists(id))
             {
                 return BadRequest();
             }

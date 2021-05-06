@@ -47,13 +47,13 @@ namespace LinkedBack.Controllers
             join jobs_list in _context.Jobs_list on jobs.id equals jobs_list.Jobs_id
             select new JobDTO
             {
-
-                Jobs_id = jobs.id,
+                Jobs_id = jobs_list.Jobs_id,
                 Name = jobs.Name,
                 Salary = job_descriptions.Salary,
                 Skills_required = job_descriptions.Skills_required,
                 In_Progress = jobs_list.In_Progress,
                 Work_Done = jobs_list.Work_Done,
+                Seekers_id = jobs_list.Seekers_id,
                 Employers_id = jobs_list.Employers_id,
                 Id = jobs_list.Id,
                 People_work = jobs_list.People_work
@@ -62,7 +62,7 @@ namespace LinkedBack.Controllers
             join jobs_list in _context.Jobs_list on seeks.id equals jobs_list.Jobs_id
             select new SeekersProfileDTO
             {
-                Seekers_id = seeks.id,
+                Seekers_id = jobs_list.Seekers_id,
                 Age = seekers_description.Age,
                 Name = seeks.Name,
                 Jobs_exp = seekers_description.Jobs_exp,
@@ -105,7 +105,8 @@ namespace LinkedBack.Controllers
                  Jobs_exp = seekerDTO.Jobs_exp,
                  Age = seekerDTO.Age,
                  Adress = seekerDTO.Adress,
-                 Skills = seekerDTO.Skills
+                 Skills = seekerDTO.Skills,
+                 Rating = ""
              };
              await _context.AddAsync(seek_profile);
 
@@ -151,7 +152,6 @@ namespace LinkedBack.Controllers
                  seek_profile.Jobs_exp = seek.Jobs_exp;
                  seek_profile.Adress = seek.Adress;
                  seek_profile.Skills = seek.Skills;
-                 seek_profile.Rating = seek.Rating;
                  await _context.SaveChangesAsync();
                  return NoContent();
              }

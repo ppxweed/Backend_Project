@@ -26,7 +26,7 @@ namespace LinkedBack.Controllers
         {
             var employer = from employers in _context.Employers join Employers_description in _context.Employers_Description on employers.id equals Employers_description.Employers_id
             select new EmployersDTO {
-                Employers_id = employers.id,
+                Employer_id = employers.id,
                 User_id = employers.user_id,
                 Age = Employers_description.Age,
                 Name = employers.Name,
@@ -47,13 +47,13 @@ namespace LinkedBack.Controllers
             join jobs_list in _context.Jobs_list on jobs.id equals jobs_list.Jobs_id
             select new JobDTO
             {
-
-                Jobs_id = jobs.id,
+                Jobs_id = jobs_list.Jobs_id,
                 Name = jobs.Name,
                 Salary = job_descriptions.Salary,
                 Skills_required = job_descriptions.Skills_required,
                 In_Progress = jobs_list.In_Progress,
                 Work_Done = jobs_list.Work_Done,
+                Seekers_id = jobs_list.Seekers_id,
                 Employers_id = jobs_list.Employers_id,
                 Id = jobs_list.Id,
                 People_work = jobs_list.People_work
@@ -64,7 +64,7 @@ namespace LinkedBack.Controllers
             join jobs_list in _context.Jobs_list on employers.id equals jobs_list.Jobs_id
             select new EmployersProfileDTO
             {
-                Employers_id = employers.id,
+                Employer_id = jobs_list.Employers_id,
                 Age = Employers_description.Age,
                 Name = employers.Name,
                 Job = Employers_description.Job,
@@ -75,7 +75,7 @@ namespace LinkedBack.Controllers
                 Jobs = job.Where(x => x.Jobs_id== jobs_list.Jobs_id).ToList()
             };
 
-            var employer_by_id = employer.ToList().Find(x => x.Employers_id == id);
+            var employer_by_id = employer.ToList().Find(x => x.Employer_id == id);
 
             if (employer_by_id == null)
             {
@@ -107,7 +107,8 @@ namespace LinkedBack.Controllers
                  Employers_id = employer.id,
                  Job = employerDTO.Job,
                  Age = employerDTO.Age,
-                 Country = employerDTO.Country
+                 Country = employerDTO.Country,
+                 Rating = ""
              };
              await _context.AddAsync(employer_profile);
 
@@ -139,7 +140,7 @@ namespace LinkedBack.Controllers
         [HttpPut("{id}")]
          public async Task<ActionResult> Update_Employers(int id, EmployersDTO employer)
          {
-             if (id != employer.Employers_id || !EmployerExists(id))
+             if (id != employer.Employer_id || !EmployerExists(id))
              {
                  return BadRequest();
              }
@@ -153,7 +154,6 @@ namespace LinkedBack.Controllers
                  employer_profile.Age = employer.Age;
                  employer_profile.Job = employer.Job;
                  employer_profile.Country = employer.Country;
-                 employer_profile.Rating = employer.Rating;
                  await _context.SaveChangesAsync();
                  return NoContent();
              }
