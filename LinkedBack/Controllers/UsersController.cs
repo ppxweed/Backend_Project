@@ -105,7 +105,7 @@ namespace Controllers
 
             try
             {
-                _UserDevices.NewUser(people, index.Cool_pwd);
+                _UserDevices.NewUser(people, index.Cool_pwd, index.level);
                 return Ok();
             }
             catch (Verification error)

@@ -15,5 +15,7 @@ namespace DTO
 
         [Required]
         public string Cool_pwd { get; set; }
+        [Required]
+        public string level { get; set; }
     }
 }

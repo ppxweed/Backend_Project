@@ -14,7 +14,7 @@ namespace Mails
         User Login(string mails, string cool_pwd);
         IEnumerable<User> GetAllOfThem();
         User GetById(int id);
-        User NewUser(User login, string cool_pwd);
+        User NewUser(User login, string cool_pwd , string lvl);
         void Update_profile(User login, string current_cool_pwd, string cool_pwd, string check_cool_pwd);
         string ForgottenPwd(string mails);
         void Delete_Account(int id);
@@ -68,7 +68,7 @@ namespace Mails
             return _context.User.Find(id);
         }
 
-        public User NewUser(User mail, string cool_pwd)
+        public User NewUser(User mail, string cool_pwd, string lvl)
         {
             if (string.IsNullOrWhiteSpace(cool_pwd))
             {
@@ -80,14 +80,22 @@ namespace Mails
                 throw new Verification("This mail \"" + mail.Mails + "\" is already taken");
             }
             mail.Cool_PWD = CodedPWD(cool_pwd);  
-            mail.Level = null;
+            mail.Level = lvl;
             mail.Alive = DateTime.UtcNow;
             mail.LastSeen = DateTime.UtcNow;
+            if(mail.Level == "Admin" )
+            {
+                throw new Verification("Level access denied only Employers or Seekers required");
+            }
+            else if( mail.Level == "Employers" || mail.Level == "Seekers" )
+            {
+                _context.User.Add(mail);
+                _context.SaveChanges();
 
-            _context.User.Add(mail);
-            _context.SaveChanges();
-
-            return mail;
+                return mail;
+                
+            }
+            throw new Verification("Level access denied only Employers or Seekers required");
         }
 
         public void Update_profile(User Parameter, string current_cool_pwd = null, string cool_pwd = null, string check_cool_pwd = null)
