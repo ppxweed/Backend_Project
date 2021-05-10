@@ -7,10 +7,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
-COPY ["LinkedBack/LinkedBack.csproj", "LinkedBack/"]
-RUN dotnet restore "LinkedBack/LinkedBack.csproj"
+COPY ["LinkedBack.csproj", ""]
+RUN dotnet restore "./LinkedBack.csproj"
 COPY . .
-WORKDIR "/src/LinkedBack"
+WORKDIR "/src/."
 RUN dotnet build "LinkedBack.csproj" -c Release -o /app/build
 
 FROM build AS publish
@@ -19,4 +19,4 @@ RUN dotnet publish "LinkedBack.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "LinkedBack.dll"]
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet LinkedBack.dll

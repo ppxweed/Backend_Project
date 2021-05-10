@@ -39,49 +39,69 @@ namespace LinkedBack.Controllers
             return await employer.ToListAsync();
         }
         //[Authorize(Roles = "Admin, Employers, Seekers")]
-        [HttpGet("{id}")]
+                [HttpGet("{id}")]
         public ActionResult<EmployersDTO> GetEmployer_byId(int id)
         {
-            var job = from jobs in _context.Jobs
-            join job_descriptions in _context.Jobs_Description on jobs.id equals job_descriptions.jobs_id
-            join jobs_list in _context.Jobs_list on jobs.id equals jobs_list.Jobs_id
-            select new JobDTO
+            EmployersDTO theEmployer = new EmployersDTO();
+            theEmployer.Employer_id = id;
+            bool check = true;
+            foreach (var s in _context.Employers.ToList())
             {
-                Jobs_id = jobs_list.Jobs_id,
-                Name = jobs.Name,
-                Salary = job_descriptions.Salary,
-                Skills_required = job_descriptions.Skills_required,
-                In_Progress = jobs_list.In_Progress,
-                Work_Done = jobs_list.Work_Done,
-                Seekers_id = jobs_list.Seekers_id,
-                Employers_id = jobs_list.Employers_id,
-                Id = jobs_list.Id,
-                People_work = jobs_list.People_work
-            };
-
-            var employer = from employers in _context.Employers 
-            join Employers_description in _context.Employers_Description on employers.id equals Employers_description.Employers_id
-            join jobs_list in _context.Jobs_list on employers.id equals jobs_list.Jobs_id
-            select new EmployersProfileDTO
-            {
-                Employer_id = jobs_list.Employers_id,
-                Age = Employers_description.Age,
-                Name = employers.Name,
-                Job = Employers_description.Job,
-                Country = Employers_description.Country,
-                Entreprise = employers.Entreprise,
-                Rating = Employers_description.Rating,
-                User_id = employers.user_id,
-                Jobs = job.Where(x => x.Jobs_id== jobs_list.Jobs_id).ToList()
-            };
-
-            var employer_by_id = employer.ToList().Find(x => x.Employer_id == id);
-
-            if (employer_by_id == null)
+                if(s.id == id)
+                {
+                    theEmployer.Name = s.Name;
+                    theEmployer.Entreprise = s.Entreprise;
+                    theEmployer.User_id = s.user_id;
+                    check = false;
+                }
+            }
+            if (check)
             {
                 return NotFound();
             }
-            return employer_by_id;
+            foreach (var detail in _context.Employers_Description.ToList())
+            {
+                if(detail.Employers_id == id)
+                {
+                    theEmployer.Age = detail.Age;
+                    theEmployer.Job = detail.Job;
+                    theEmployer.Country = detail.Country;
+                    theEmployer.Rating = detail.Rating;
+                }
+            }
+            List<JobDTO> jobList = new List<JobDTO>();
+            foreach (var job in _context.Jobs_list.ToList())
+            {
+                if(job.Employers_id == id)
+                {
+                    JobDTO newJob = new JobDTO();
+                    foreach(var jobname in _context.Jobs.ToList())
+                    {
+                        if(job.Jobs_id == jobname.id)
+                        {
+                            newJob.Name = jobname.Name;
+                        }
+                    }
+                    foreach(var jobdesciption in _context.Jobs_Description.ToList())
+                    {
+                        if(job.Jobs_id == jobdesciption.jobs_id)
+                        {
+                            newJob.Salary = jobdesciption.Salary;
+                            newJob.Skills_required = jobdesciption.Skills_required;
+                        }
+                    }
+                    foreach(var jobenterprise in _context.Employers.ToList())
+                    {
+                        if(jobenterprise.id == job.Employers_id)
+                        {
+                            newJob.Entreprise = jobenterprise.Entreprise;
+                        }
+                    }
+                    jobList.Add(newJob);
+                }
+            }
+            theEmployer.Jobs = jobList;
+            return theEmployer;
         }
 
         //[Authorize(Roles = "Admin, Employers")]
