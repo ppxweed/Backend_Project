@@ -17,7 +17,7 @@ using SendGrid.Helpers.Mail;
 using Mails;
 using LinkedBack.Data;
 
-namespace Controllers
+namespace LinkedBack.Controllers
 {
     //[Authorize]
     [ApiController]
