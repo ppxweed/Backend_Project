@@ -10,6 +10,9 @@ Lucas Leplanois 23733
 
 Evan Pernette 23721
 
+
+Github link : https://github.com/ppxweed/Backend_Project.git
+BECAREFUL : FOR THE EMAIL YOU NEED YOUR OWN SENDGRID KEY
 ==================================================================================================================================
 
 Attributions :

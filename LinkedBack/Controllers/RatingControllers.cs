@@ -20,6 +20,7 @@ namespace LinkedBack.Controllers
         {
             _context = context;
         }
+        [AllowAnonymous]
         [HttpGet("employers'Rate")]
         public async Task<ActionResult<IEnumerable<EmployersDTO>>> GetEmployers()
         {
@@ -31,7 +32,7 @@ namespace LinkedBack.Controllers
 
             return await employer.ToListAsync();
         }
-        //[Authorize(Roles = "Admin, Employers")]
+        [Authorize(Roles = "Admin, Seekers")]
         [HttpPut("employers_{id}")]
          public async Task<ActionResult> Update_Employers(int id, EmployersDTO employer)
          {
@@ -51,7 +52,7 @@ namespace LinkedBack.Controllers
          {
              return _context.Employers.Any(x => x.id == id);
          }
-
+        [AllowAnonymous]
         [HttpGet("seekers'Rate")]
         public async Task<ActionResult<IEnumerable<SeekersDTO>>> GetSeekers()
         {
@@ -63,6 +64,7 @@ namespace LinkedBack.Controllers
 
             return await seek.ToListAsync();
         }
+        [Authorize(Roles = "Admin, Employers")]
         [HttpPut("seekers_{id}")]
          public async Task<ActionResult> Update_Seekers(int id, SeekersDTO seek)
          {

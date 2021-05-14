@@ -20,7 +20,7 @@ namespace LinkedBack.Controllers
         {
             _context = context;
         }
-        //[Authorize(Roles = "Admin, Employers, Seekers")]
+        [Authorize(Roles = "Admin, Employers, Seekers")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EmployersDTO>>> GetEmployers()
         {
@@ -38,7 +38,7 @@ namespace LinkedBack.Controllers
 
             return await employer.ToListAsync();
         }
-        //[Authorize(Roles = "Admin, Employers, Seekers")]
+        [Authorize(Roles = "Admin, Employers, Seekers")]
                 [HttpGet("{id}")]
         public ActionResult<EmployersDTO> GetEmployer_byId(int id)
         {
@@ -104,7 +104,7 @@ namespace LinkedBack.Controllers
             return theEmployer;
         }
 
-        //[Authorize(Roles = "Admin, Employers")]
+        [Authorize(Roles = "Admin, Employers")]
         [HttpPost]
          public async Task<ActionResult> Add_Employers(AddEmployers employerDTO)
          {
@@ -137,7 +137,7 @@ namespace LinkedBack.Controllers
              return CreatedAtAction("GetEmployers", new { id = employer.id }, employerDTO);
          }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
          [HttpDelete("{id}")]
          public async Task<ActionResult<Employers>> Delete_Employer(int id)
          {
@@ -156,7 +156,7 @@ namespace LinkedBack.Controllers
                  return employer;
              }
          }
-        //[Authorize(Roles = "Admin, Employers")]
+        [Authorize(Roles = "Admin, Employers")]
         [HttpPut("{id}")]
          public async Task<ActionResult> Update_Employers(int id, EmployersDTO employer)
          {

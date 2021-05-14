@@ -19,7 +19,7 @@ using LinkedBack.Data;
 
 namespace LinkedBack.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class UsersController : ControllerBase
@@ -86,8 +86,8 @@ namespace LinkedBack.Controllers
            
         }
 
-        //[Authorize(Roles = Level.Admin)]
-        [HttpPost("level/{id}")]
+        [Authorize(Roles = Level.Admin)]
+        [HttpPost("level/{id} : Employers/Seekers/Banned")]
         public IActionResult ChangeLevel(int id, UpdateLevelDTO lvl)
         {
             //Always keep the admin for one person
@@ -130,7 +130,7 @@ namespace LinkedBack.Controllers
             return Ok(index);
         }
 
-        //[Authorize(Roles = Level.Admin)]
+        [Authorize(Roles = "Admin, Employers,Seekers")]
         [HttpPost("mail")]
         public async Task<IActionResult> SendEmail(EmailDTO index)
         {

@@ -23,7 +23,7 @@ namespace LinkedBack.Controllers
         {
             _context = context;
         }
-        //[Authorize(Roles = "Admin, Employers, Seekers")]
+        [Authorize(Roles = "Admin, Employers, Seekers")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<JobDTO>>> GetJobs()
         {

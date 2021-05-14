@@ -32,7 +32,7 @@ namespace LinkedBack.Controllers
         {
             return await _context.Jobs_list.ToListAsync();
         }*/
-
+        [Authorize(Roles = "Employers, Seekers")]
         [HttpPost("FindJob")]
         public async Task<ActionResult<IEnumerable<FindJobDTO>>> FindJobBook(FindJobDTO find)
         {
@@ -53,7 +53,7 @@ namespace LinkedBack.Controllers
 
             return CreatedAtAction("GetListJobs",find);
         }
-
+        [Authorize(Roles = "Employers, Seekers")]
         [HttpPost("JobDone")]
         public async Task<ActionResult<IEnumerable<FindJobDTO>>> JobDone(ReturnJobDTO work_done)
         {

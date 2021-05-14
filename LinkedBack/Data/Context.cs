@@ -23,5 +23,7 @@ namespace LinkedBack.Data
 
 
         public DbSet<User> User {get; set;}
+
+        public DbSet<Mail> Mail {get;set;}
     }
 }
